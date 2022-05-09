@@ -55,6 +55,22 @@ class BraccioData:
         tx.run("MATCH (a) -[r] -> () DELETE a, r")
         tx.run("MATCH (a) DELETE a")
 
+    """
+    QUERY METHODS EXAMPLE
+    """
+
+    def get_information(self, filename):
+        with self.driver.session() as session:
+            session.write_transaction(self._create_and_return_greeting, "Hello")
+
+    @staticmethod
+    def _create_and_return_greeting(tx, message):
+        result = tx.run("MATCH "
+                        "SET a.message = $message "
+                        "RETURN a.message + ', from node ' + id(a)", message=message)
+        print(result.single()[0])
+        return result.single()[0]
+
 
 if __name__ == "__main__":
     driver = BraccioData("neo4j://localhost:7687")

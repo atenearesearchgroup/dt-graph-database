@@ -37,4 +37,16 @@ WITH collect(snp.s3) as snapshots
 UNWIND snapshots as s
 RETURN avg(s)
 
+// Given two RobotArms, calculate the frechet distance between the component
+// temperatures c2 over the time interval between t1 (0) and t2 (20)
+MATCH (dt:RobotArm {name:'braccio'})
+MATCH (dt2:RobotArm {name:'braccio2'})
+MATCH (ts:Timestamp)
+WHERE ts.time <= 20 AND ts.time >= 0
+MATCH (dt)-[:IS_IN_STATE]->(snp)-[:AT_THE_TIME]->(ts)
+MATCH (dt2)-[:IS_IN_STATE]->(snp2)-[:AT_THE_TIME]->(ts)
+WITH collect(snp.s3) as snapshots
+WITH collect(snp2.s3) as snapshots2
+FOREACH (i in range(0, size(snapshots2)) |
+  RETURN (snapshots[i] - snapshots2[i]))
 
