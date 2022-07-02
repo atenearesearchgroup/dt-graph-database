@@ -129,5 +129,4 @@ dmypy.json
 .pyre/
 
 # Other files from project
-/inject_data.sh
 .idea
