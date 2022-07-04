@@ -11,7 +11,7 @@ CREATE (braccio:DigitalTwin:RobotArm {name:'braccio'}),
 // Create the next relationship between consecutive timestamps
 MATCH (ts:Timestamp)
 WITH ts
-ORDER BY ts.time DESC
+ORDER BY ts.value DESC
 WITH collect(ts) as timestamps
 FOREACH (i in range(0, size(timestamps) - 2) |
   FOREACH (ts1 in [timestamps[i]] |
@@ -21,20 +21,41 @@ FOREACH (i in range(0, size(timestamps) - 2) |
 // Calculate the average value of the arm Servo s3 in the time interval between t1 (0) and t2 (20)
 MATCH (dt:DigitalTwin {name:'braccio'})
 MATCH (ts:Timestamp)
-WHERE ts.time <= 20 AND ts.time >= 0
+WHERE ts.value <= 20 AND ts.value >= 0
+MATCH (dt:DigitalTwin)
 MATCH (dt)-[:IS_IN_STATE]->(snp)-[:AT_THE_TIME]->(ts)
-WITH collect(snp.s3) as snapshots
+WITH collect(snp.currentAngles_3) as snapshots
 UNWIND snapshots as s
 RETURN avg(s)
 
 // Calculate the average value of the arm Servo s3 for all RobotArms in the System
 // in the time interval between t1 (0) and t2 (20)
-MATCH (dt:RobotArm)
 MATCH (ts:Timestamp)
-WHERE ts.time = 40
+WHERE ts.value <= 20 AND ts.value >= 0
+MATCH (dt:DigitalTwin)
 MATCH (dt)-[:IS_IN_STATE]->(snp)-[:AT_THE_TIME]->(ts)
-WITH collect(snp.s3) as snapshots
+WITH collect(snp.currentAngles_3) as snapshots
 UNWIND snapshots as s
 RETURN avg(s)
 
+// Calculate the average value of the servo s3 for each of the robot arms in the System
+MATCH (ts:Timestamp)
+WHERE ts.value <= 20 AND ts.value >= 0
+MATCH (dt:DigitalTwin)
+MATCH (dt)-[:IS_IN_STATE]->(snp)-[:AT_THE_TIME]->(ts)
+WITH dt, snp.currentAngles_3 as snapshots
+RETURN dt, avg(snapshots)
+
+// Time series aggregation
+MATCH (dt:DigitalTwin)-[:IS_IN_STATE]->()-[:AT_THE_TIME]->(upperBound:Timestamp)
+WHERE dt.name STARTS WITH 'braccio'
+MATCH (dt)-[:IS_IN_STATE]->()-[:AT_THE_TIME]->(lowerBound:Timestamp)
+MATCH timePeriod=(lowerBound)-[:NEXT*1..20]->(upperBound)
+WHERE upperBound.value - lowerBound.value = 10
+WITH *, nodes(timePeriod) as timestamps
+MATCH (dt)-[:IS_IN_STATE]->(snp:Snapshot)-[:AT_THE_TIME]->(ts:Timestamp)
+WHERE ts in timestamps
+WITH upperBound, lowerBound, timestamps, dt, collect(snp) as snapshots
+UNWIND snapshots as s
+RETURN dt, upperBound, lowerBound, avg(s.currentAngles_3)
 
