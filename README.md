@@ -19,6 +19,8 @@ sudo docker run --name neo4j-database -d --restart always --publish=7474:7474 --
 
 ### Key-value database - redis
 
+Download a new instance of [redis](https://redis.io/). It is recommended to use a Docker container. 
+
 #### Docker installation
 
 1. Pull an image from Docker Hub:
