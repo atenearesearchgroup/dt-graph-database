@@ -32,4 +32,4 @@ sudo docker run --name redis-timeless -d --restart always --publish=6379:6379 re
 ```
 
 #### Perform the analysis
-Run main.py, and it will start the execution and generate a graphic with the corresponding results.
+Run [main.py](https://github.com/atenearesearchgroup/dt-graph-database/blob/main/main.py), and it will start the execution and generate a graphic with the corresponding results.
