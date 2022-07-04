@@ -1,6 +1,5 @@
 # dt-graph-database
-In this repository, we include a basic example on how to set up a graph database for storing Digital Twins' execution traces. We are using a Braccio robotic arm as an example.
-
+In this repository, we include a basic example of setting up a graph database for storing Digital Twins' execution traces. Additionally, we compare this approach with one using Redis, a key-value database. We are using a Braccio robotic arm and a Lego Mindstorms NXJ as examples.
 ## Installation
 ### Graph database - neo4j
 
@@ -18,14 +17,19 @@ docker pull neo4j:latest
 sudo docker run --name neo4j-database -d --restart always --publish=7474:7474 --publish=7687:7687 --volume=$HOME/neo4j/data:/data --env NEO4J_ACCEPT_LICENSE_AGREEMENT=yes --env NEO4J_AUTH=none neo4j:latest 
 ```
 
-3. Get the container id for the next step:
+### Key-value database - redis
+
+#### Docker installation
+
+1. Pull an image from Docker Hub:
 ```
-docker ps
+docker pull redis:latest
 ```
 
-#### Create and fill your database with synthetic data
-1. Fill the file [inject_data_template.sh](https://github.com/atenearesearchgroup/dt-graph-database/blob/main/inject_data_template.sh) with your local path to the corresponding files and the docker container id from the database.
-2. Execute [inject_data_template.sh](https://github.com/atenearesearchgroup/dt-graph-database/blob/main/inject_data_template.sh)
+2. Run a Docker image (either pulled or locally generated):
+```
+sudo docker run --name redis-timeless -d --restart always --publish=6379:6379 redis:latest 
+```
 
-#### Check your database
-You can access your container on [localhost:7474](http://localhost:7474/). Select _No authentication_ as the access mode.
+#### Perform the analysis
+Run main.py, and it will start the execution and generate a graphic with the corresponding results.
